@@ -60,6 +60,7 @@ function SpatialTVNorm:_resetSize(B, C, H, W)
 end
 
 function SpatialTVNorm:_resetSizeDirtyButFast(B, C, H, W)
+    error('shoul not call this function. bugs exist.')
     -- do it in a dirty but fast way
 
     -- View

@@ -9,14 +9,15 @@ function SpatialTVNormCriterion:__init()
     parent.__init(self)
 
     self.mTVNorm = nn.SpatialTVNorm()
-    self.gradOutputConst = torch.Tensor(1)
+    self.gradOutputConst = torch.Tensor(1):fill(1)
 end
 
 function SpatialTVNormCriterion:updateOutput(input, target)
     -- B, C, H, W
     local output = self.mTVNorm:updateOutput(input)
     -- B
-    return output:sum()/output:nElement() -- a lua number, averaged by batch size!
+    self.output = output:sum()/output:nElement() -- a lua number, averaged by batch size!
+    return self.output
 end
 
 function SpatialTVNormCriterion:updateGradInput(input, target)
@@ -26,5 +27,6 @@ function SpatialTVNormCriterion:updateGradInput(input, target)
         self.gradOutputConst:resize(B):fill(1/B) -- averaged by batch size!
     end
 
-    return self.mTVNorm:updateGradInput(input, self.gradOutputConst)
+    self.gradInput = self.mTVNorm:updateGradInput(input, self.gradOutputConst)
+    return self.gradInput
 end
