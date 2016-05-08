@@ -55,4 +55,4 @@ input: B, 1, H, W
 output: B, 2, H, W
 ```
 
-Examples: see `timing_sobel.lua`.
+Examples: see `temp/timing_sobel.lua`.
