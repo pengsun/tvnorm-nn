@@ -22,9 +22,9 @@ local function makeSobelKernel()
     -- convnet to convolution module data layout
     local nInputPlane = 1 -- only one image
     local nOutputPlane = 2 -- x-, y- directional gradients
-    local sk = torch.Tensor(nInputPlane,nOutputPlane,3,3)
-    sk[1][1]:copy(kx)
-    sk[1][2]:copy(ky)
+    local sk = torch.Tensor(nOutputPlane,nInputPlane,3,3)
+    sk[1][nInputPlane]:copy(kx)
+    sk[2][nInputPlane]:copy(ky)
     return sk
 end
 
