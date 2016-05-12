@@ -36,7 +36,7 @@ Each result has been averaged by size `C*H*W`.
 
 Examples: see `temp/timing_tvnorm.lua`.
 
-#### `nn.SpatialTVNormCriterion()`
+#### `nn.SpatialTVNormCriterion([kerType])`
 TV Norm as criterion. Convenient when used as regularizer. See also `nn.MultiCriterion`.
 Expect tensor size:
 ```
