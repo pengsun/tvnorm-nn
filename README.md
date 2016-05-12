@@ -23,20 +23,7 @@ H: image height
 W: image width
 ```
 
-#### `nn.SpatialTVNorm([kerType])`
-Expect tensor size:
-```
-input: B, C, H, W
-output: B
-```
-Calculate TV norm for each `H, W` sized image with `C` channels. 
-Use kernel type `kerType`, which can be `sobel` (default) or `simple`.
-Each result has been averaged by size `C*H*W`.
-`Forward()` and `Backward()` routines are implemented. No parameters.
-
-Examples: see `temp/timing_tvnorm.lua`.
-
-#### `nn.SpatialTVNormCriterion([kerType])`
+#### `nn.SpatialTVNormCriterion()`
 TV Norm as criterion. Convenient when used as regularizer. See also `nn.MultiCriterion`.
 Expect tensor size:
 ```
@@ -45,25 +32,27 @@ output: 1 (lua number)
 ```
 Calculate TV norm for each `H, W` sized image with `C` channels by calling `nn.SpatialTVNorm`, 
 then average the results by size `B` to get the loss in `lua` number.
-Use kernel type `kerType`, which can be `sobel` (default) or `simple`.
 `Forward()` and `Backward()` routines are implemented. No parameters.
 
 Examples: see `temp/timing_tvnormCri.lua`.
 
-#### `nn.SpatialSobelFilter()`
-Apply `3x3` Sobel filter to calculate x- and y- directional gradients for each of the `H, W` sized image. Expect tensor size:
+#### `nn.SpatialTVNorm()`
+Expect tensor size:
 ```
-input: B, 1, H, W
-output: B, 2, H, W
+input: B, C, H, W
+output: B
 ```
+Calculate TV norm for each `H, W` sized image with `C` channels. 
+Each result has been averaged by size `C*H*W`.
+`Forward()` and `Backward()` routines are implemented. No parameters.
 
-Examples: see `temp/timing_sobel.lua`.
+Examples: see `temp/timing_tvnorm.lua`.
 
 #### `nn.SimpleGradFilter()`
 Calculate x- and y- directional gradients (consecutive pixels subtraction) for each of the `H, W` sized image. Expect tensor size:
 ```
 input: B, 1, H, W
-output: B, 2, H, W
+output: B, 2, H-1, W-1
 ```
 
 Examples: see `temp/timing_simplegrad.luat`

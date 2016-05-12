@@ -9,32 +9,27 @@ local function checkInputSize(input)
     return input:size(1), input:size(2), input:size(3), input:size(4)
 end
 
-function SpatialTVNorm:__init(kerType)
+function SpatialTVNorm:__init()
     parent.__init(self)
 
-    local mFilter
-    kerType = kerType or 'sobel'
-    if kerType == 'sobel' then
-        mFilter = nn.SpatialSobelFilter()
-    elseif kerType == 'simple' then
-        mFilter = nn.SpatialSimpleGradFilter()
-    else
-        error('unknown kerType '..kerType)
-    end
-
-    local B, C, H, W = 1, 1, 1, 1 -- reset them at run-time
+    local B, C, H, W = 1, 1, 2, 2 -- reset them at run-time
+    local Hd, Wd = 1, 1
     -- B, C, H, W
     self:add( nn.View(B*C, 1, H, W) ) -- 1
     -- BC, 1, H, W
-    self:add( mFilter )
-    -- BC, 2, H, W
-    self:add( nn.Abs() )
-    -- BC, 2, H, W
-    self:add( nn.View(B, 1, C*2*H, W) ) -- 4
-    -- B, 1, C*2*H, W
-    self:add( cudnn.SpatialAveragePooling(W,C*2*H, W,C*2*H, 0,0) ) -- 5
+    self:add( nn.SpatialSimpleGradFilter() )
+    -- BC, 2, H', W'
+    self:add( nn.Square() )
+    -- BC, 2, H', W'
+    self:add( nn.Sum(2) )
+    -- BC, H', W'
+    self:add( nn.Sqrt() )
+    -- BC, H', W'
+    self:add( nn.View(B, 1, C*Hd, Wd) ) -- 6
+    -- B, 1, C*H', W'
+    self:add( cudnn.SpatialAveragePooling(Wd,C*Hd, Wd,C*Hd, 0,0) ) -- 7
     -- B, 1, 1, 1
-    self:add( nn.View(B) ) -- 6
+    self:add( nn.View(B) ) -- 8
     -- B
 end
 
@@ -51,44 +46,20 @@ function SpatialTVNorm:updateGradInput(input, gradOutput)
 end
 
 function SpatialTVNorm:_resetSize(B, C, H, W)
-    -- do it in a dirty but fast way
+    local Hd, Wd = H-1, W-1
 
     -- View
     self.modules[1]:resetSize(B*C, 1, H, W)
 
     -- View
-    self.modules[4]:resetSize(B, 1, C*2*H, W)
+    self.modules[6]:resetSize(B, 1, C*Hd, Wd)
 
     -- SpatialAveragePooling
-    self.modules[5].kW = W
-    self.modules[5].kH = C*2*H
-    self.modules[5].dW = W
-    self.modules[5].dH = C*2*H
+    self.modules[7].kW = Wd
+    self.modules[7].kH = C*Hd
+    self.modules[7].dW = Wd
+    self.modules[7].dH = C*Hd
 
     -- View
-    self.modules[6]:resetSize(B)
-end
-
-function SpatialTVNorm:_resetSizeDirtyButFast(B, C, H, W)
-    error('shoul not call this function. bugs exist.')
-    -- do it in a dirty but fast way
-
-    -- View
-    self.modules[1].size[1] = B*C
-    self.modules[1].size[3] = H
-    self.modules[1].size[4] = W
-
-    -- View
-    self.modules[4].size[1] = B
-    self.modules[4].size[3] = C*2*H
-    self.modules[4].size[4] = W
-
-    -- SpatialAveragePooling
-    self.modules[5].kW = W
-    self.modules[5].kH = C*2*H
-    self.modules[5].dW = W
-    self.modules[5].dH = C*2*H
-
-    -- View
-    self.modules[6].size[1] = B
+    self.modules[8]:resetSize(B)
 end

@@ -39,8 +39,14 @@ function timing_module(input, target, m)
 end
 
 print('batch size = ' .. B)
-m = nn.SpatialTVNormCriterion():cuda()
+m = nn.SpatialTVNormCriterionOld('sobel'):cuda()
 timing_module(input, target, m)
 
 output = m:forward(input, target)
 gradInput = m:backward(input, target)
+
+m2= nn.SpatialTVNormCriterionOld('simple'):cuda()
+timing_module(input, target, m2)
+
+output2 = m2:forward(input, target)
+gradInput2 = m2:backward(input, target)

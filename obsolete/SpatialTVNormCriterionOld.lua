@@ -1,18 +1,18 @@
---- nn.SpatialTVNormCriterion, useful when nn.SpatialTVNorm is a regularizer
+--- nn.SpatialTVNormCriterionOld, useful when nn.SpatialTVNorm is a regularizer
 -- Input size: B, C, H, W
 -- Target size: dummy
 -- Output size: 1
 
-local SpatialTVNormCriterion, parent = torch.class('nn.SpatialTVNormCriterion', 'nn.Criterion')
+local SpatialTVNormCriterionOld, parent = torch.class('nn.SpatialTVNormCriterionOld', 'nn.Criterion')
 
-function SpatialTVNormCriterion:__init()
+function SpatialTVNormCriterionOld:__init(kerType)
     parent.__init(self)
 
-    self.mTVNorm = nn.SpatialTVNorm()
+    self.mTVNorm = nn.SpatialTVNormOld(kerType)
     self.gradOutputConst = torch.Tensor(1):fill(1)
 end
 
-function SpatialTVNormCriterion:updateOutput(input, target)
+function SpatialTVNormCriterionOld:updateOutput(input, target)
     -- B, C, H, W
     local output = self.mTVNorm:updateOutput(input)
     -- B
@@ -20,7 +20,7 @@ function SpatialTVNormCriterion:updateOutput(input, target)
     return self.output
 end
 
-function SpatialTVNormCriterion:updateGradInput(input, target)
+function SpatialTVNormCriterionOld:updateGradInput(input, target)
     -- reuse constant tensor if batch size unchanges
     local B = input:size(1)
     if self.gradOutputConst:type() ~= input:type() or self.gradOutputConst:size(1) ~= B then
