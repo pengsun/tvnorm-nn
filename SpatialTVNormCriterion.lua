@@ -5,10 +5,10 @@
 
 local SpatialTVNormCriterion, parent = torch.class('nn.SpatialTVNormCriterion', 'nn.Criterion')
 
-function SpatialTVNormCriterion:__init()
+function SpatialTVNormCriterion:__init(kerType)
     parent.__init(self)
 
-    self.mTVNorm = nn.SpatialTVNorm()
+    self.mTVNorm = nn.SpatialTVNorm(kerType)
     self.gradOutputConst = torch.Tensor(1):fill(1)
 end
 

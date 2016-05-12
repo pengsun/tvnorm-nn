@@ -9,14 +9,24 @@ local function checkInputSize(input)
     return input:size(1), input:size(2), input:size(3), input:size(4)
 end
 
-function SpatialTVNorm:__init()
+function SpatialTVNorm:__init(kerType)
     parent.__init(self)
+
+    local mFilter
+    kerType = kerType or 'sobel'
+    if kerType == 'sobel' then
+        mFilter = nn.SpatialSobelFilter()
+    elseif kerType == 'simple' then
+        mFilter = nn.SpatialSimpleGradFilter()
+    else
+        error('unknown kerType '..kerType)
+    end
 
     local B, C, H, W = 1, 1, 1, 1 -- reset them at run-time
     -- B, C, H, W
     self:add( nn.View(B*C, 1, H, W) ) -- 1
     -- BC, 1, H, W
-    self:add( nn.SpatialSobelFilter() )
+    self:add( mFilter )
     -- BC, 2, H, W
     self:add( nn.Abs() )
     -- BC, 2, H, W
