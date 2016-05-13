@@ -48,7 +48,7 @@ Each result has been averaged by size `C*H*W`.
 
 Examples: see `temp/timing_tvnorm.lua`.
 
-#### `nn.SimpleGradFilter()`
+#### `nn.SpatialSimpleGradFilter()`
 Calculate x- and y- directional gradients (consecutive pixels subtraction) for each of the `H, W` sized image. Expect tensor size:
 ```
 input: B, 1, H, W
